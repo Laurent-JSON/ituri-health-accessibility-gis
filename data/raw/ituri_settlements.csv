@@ -1,0 +1,11 @@
+name,lat,lon,population,has_health_center,health_center_type,road_quality
+Bunia,1.5595,30.2524,120000,Yes,General Hospital,good
+Aru,2.8655,30.8489,45000,Yes,Referral Center,medium
+Mahagi,2.3000,31.1500,38000,Yes,Health Center,medium
+Irumu,1.4500,29.8667,25000,No,None,poor
+Mongbwalu,1.9500,30.0333,22000,Yes,Clinic,medium
+Nia Nia,2.0000,28.6167,15000,No,None,poor
+Komanda,1.4000,29.6000,18000,No,None,poor
+Aveba,1.3000,29.4667,8000,No,None,very_poor
+Boga,2.1000,30.3000,12000,No,None,poor
+Gety,1.8500,29.7500,14000,Yes,Clinic,medium

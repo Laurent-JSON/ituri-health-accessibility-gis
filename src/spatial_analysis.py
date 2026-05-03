@@ -22,17 +22,31 @@ def create_facilities_gdf(gdf):
     return facilities
 
 def calculate_nearest_facility(settlements_gdf, facilities_gdf):
-    settlements_rad = np.radians(settlements_gdf.geometry.apply(lambda p: (p.y, p.x)))
-    facilities_rad = np.radians(facilities_gdf.geometry.apply(lambda p: (p.y, p.x)))
+    """
+    Calculate distance (km) to nearest health facility using BallTree algorithm.
+    Earth radius = 6371 km for haversine distance.
+    """
+    logging.info("Calculating nearest health facilities...")
     
-    tree = BallTree(facilities_rad, metric='haversine')
-    distances, indices = tree.query(settlements_rad, k=1)
+    # Extract coordinates as (lat, lon) and convert to radians
+    settlements_coords = np.radians(np.array([(geom.y, geom.x) for geom in settlements_gdf.geometry]))
+    facilities_coords = np.radians(np.array([(geom.y, geom.x) for geom in facilities_gdf.geometry]))
+    
+    # Build BallTree for efficient nearest neighbor search
+    tree = BallTree(facilities_coords, metric='haversine')
+    
+    # Query nearest facility for each settlement
+    distances, indices = tree.query(settlements_coords, k=1)
+    
+    # Convert distances from radians to kilometers
     distances_km = distances.flatten() * 6371
     
     settlements_gdf['distance_to_facility_km'] = distances_km
     settlements_gdf['nearest_facility'] = facilities_gdf.iloc[indices.flatten()]['name'].values
     
-    logging.info(f"Distance - min: {distances_km.min():.1f}km, max: {distances_km.max():.1f}km")
+    logging.info(f"Distance stats - min: {distances_km.min():.1f}km, "
+                f"max: {distances_km.max():.1f}km, mean: {distances_km.mean():.1f}km")
+    
     return settlements_gdf
 
 def calculate_population_without_access(gdf, threshold_km=15):

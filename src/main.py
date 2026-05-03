@@ -29,7 +29,7 @@ def setup_directories():
 def main():
     print("=" * 60)
     print("🌍 I T U R I   H E A L T H   A C C E S S I B I L I T Y")
-    print="=" * 60)
+    print("=" * 60)
     print("Analyzing health facility access in Ituri Province, DRC")
     print("Focus region: Bunia and surrounding settlements")
     print("=" * 60)

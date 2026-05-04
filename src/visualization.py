@@ -71,6 +71,67 @@ def create_health_access_map(gdf, output_path):
     logging.info(f"Map saved to {output_path}")
     plt.close()
 
+def create_health_access_map_with_basemap(gdf, output_path):
+    """
+    Create professional map with basemap showing health access levels.
+    Green = Good, Orange = Limited, Red = Poor access.
+    """
+    import contextily as ctx
+    
+    logging.info("Creating health access map WITH basemap...")
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    color_map = {
+        'Good': '#2ecc71',      # Green
+        'Limited': '#f39c12',   # Orange
+        'Poor': '#e74c3c'       # Red
+    }
+    
+    fig, ax = plt.subplots(figsize=(14, 12))
+    
+    # Plot each category
+    for category, color in color_map.items():
+        subset = gdf[gdf['access_category'] == category]
+        if not subset.empty:
+            sizes = subset['population'] / 1500
+            subset.plot(ax=ax, marker='o', color=color, edgecolor='black',
+                       markersize=sizes, alpha=0.8, label=f'{category} Access')
+    
+    # Add labels for ALL settlements
+    for idx, row in gdf.iterrows():
+        offset = 8 if row['population'] > 20000 else 5
+        fontsize = 9 if row['population'] > 20000 else 7
+        
+        ax.annotate(f"{row['name']}\n({row['population']:,})",
+                   xy=(row.geometry.x, row.geometry.y),
+                   xytext=(5, offset), textcoords='offset points',
+                   fontsize=fontsize, fontweight='bold',
+                   bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.7))
+    
+    # Set map bounds (Ituri region)
+    ax.set_xlim(28.4, 31.6)
+    ax.set_ylim(1.0, 3.3)
+    
+    # Add basemap (real map tiles)
+    try:
+        ctx.add_basemap(ax, crs=gdf.crs, source=ctx.providers.CartoDB.Positron)
+        logging.info("Basemap added successfully")
+    except Exception as e:
+        logging.warning(f"Could not add basemap: {e}")
+    
+    ax.set_title("Health Facility Accessibility in Ituri Province, DRC (with Basemap)\n"
+                f"Assessment of {len(gdf)} Settlements | Focus on Bunia Region",
+                fontsize=14, fontweight='bold')
+    ax.set_xlabel("Longitude", fontsize=11)
+    ax.set_ylabel("Latitude", fontsize=11)
+    ax.legend(loc='lower right', framealpha=0.9)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    logging.info(f"Map with basemap saved to {output_path}")
+    plt.close()
+    
 def create_population_analysis_plot(gdf, output_path):
     """Create bar chart of population by access category"""
     logging.info("Creating population analysis plot...")
